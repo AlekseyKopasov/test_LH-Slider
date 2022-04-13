@@ -1,4 +1,23 @@
 $(document).ready(function() {
+  let lockedSlide = null;
+  let lockedSlideIndex = null;
+  let nextSlide = null;
+  let prevSlide = null;
+
+  function swapElements(obj1, obj2) {
+    // create marker element and insert it where obj1 is
+    var temp = document.createElement("div");
+    obj1.parentNode.insertBefore(temp, obj1);
+
+    // move obj1 to right before obj2
+    obj2.parentNode.insertBefore(obj1, obj2);
+
+    // move obj2 to right before where obj1 used to be
+    temp.parentNode.insertBefore(obj2, temp);
+
+    // remove temporary marker node
+    temp.parentNode.removeChild(temp);
+  }
 
   $('.slider').slick({
     dots: false,
@@ -38,36 +57,38 @@ $(document).ready(function() {
   });
 
   $('.slick-arrow').on('click', (function (evt) {
-    let isLocked = $('.locked').length;
-    if (!isLocked) {
+    const isLocked = $('.locked').length;
+    const currentIndex = $('[data-slick-index]')[0];
+    const length = $('[data-slick-index]').length;
+
+    if (!isLocked || currentIndex <= 0 || currentIndex >= length) {
       return;
     }
 
-    let lockedSlide = $('.locked')[0];
-    let lockedSlideIndex = $('.locked').attr("data-slick-index");
-    let nextSlide = $(`[data-slick-index=${+lockedSlideIndex + 1}]`)[0];
-    let prevSlide = $(`[data-slick-index=${+lockedSlideIndex - 1}]`)[0];
+
     const nextButton = $(evt.currentTarget).hasClass('slick-next');
 
-    let clonedLocked = lockedSlide.cloneNode(true); // 1
-    let clonedNext = nextSlide.cloneNode(true); // 2
-    let clonedPrev = prevSlide.cloneNode(true);  // 3
-
     if (nextButton) {
-      let nextIndex = $(nextSlide).attr("data-slick-index");
 
-      nextSlide.parentNode.replaceChild(clonedLocked, nextSlide);
-      lockedSlide.parentNode.replaceChild(clonedNext, lockedSlide);
+      lockedSlideIndex = +($('.locked').attr("data-slick-index"));
+      lockedSlide = $('.locked')[0];
+      nextSlide = $(`[data-slick-index="${lockedSlideIndex + 1}"]`)[0];
 
-      nextSlide = $(`[data-slick-index=${(+nextIndex + 1)}]`)[0];
+      swapElements(lockedSlide, nextSlide);
 
+      $('.locked').attr('data-slick-index', lockedSlideIndex + 1);
+      lockedSlideIndex += 1;
+      nextSlide = $(`[data-slick-index="${lockedSlideIndex}"]`)[0];
     } else {
-      let prevIndex = $(prevSlide).attr("data-slick-index");
+      lockedSlideIndex = +($('.locked').attr("data-slick-index"));
+      lockedSlide = $('.locked')[0];
+      prevSlide = $(`[data-slick-index="${lockedSlideIndex - 1}"]`)[0];
 
-      prevSlide.parentNode.replaceChild(clonedLocked, prevSlide);
-      lockedSlide.parentNode.replaceChild(clonedPrev, lockedSlide);
+      swapElements(lockedSlide, prevSlide);
 
-      prevSlide = $(`[data-slick-index=${(+prevSlide + 1)}]`)[0];
+      $('.locked').attr('data-slick-index', lockedSlideIndex - 1);
+      lockedSlideIndex -= 1;
+      prevSlide = $(`[data-slick-index="${lockedSlideIndex}"]`)[0];
     }
   }));
 });
