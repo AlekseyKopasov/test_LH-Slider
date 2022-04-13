@@ -65,11 +65,9 @@ $(document).ready(function() {
       return;
     }
 
-
     const nextButton = $(evt.currentTarget).hasClass('slick-next');
 
     if (nextButton) {
-
       lockedSlideIndex = +($('.locked').attr("data-slick-index"));
       lockedSlide = $('.locked')[0];
       nextSlide = $(`[data-slick-index="${lockedSlideIndex + 1}"]`)[0];
